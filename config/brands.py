@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 
 @dataclass(frozen=True)
@@ -23,6 +23,9 @@ class BrandConfig:
     # SFCC only (Jil Sander): ajax URL template that includes {pid}
     sfcc_ajax_template: Optional[str] = None
 
+    # Optional: non-sitemap discovery (e.g., Prada category pages)
+    seed_urls: Optional[List[str]] = None
+
 
 BRANDS: Dict[str, BrandConfig] = {
     "acne": BrandConfig(
@@ -38,6 +41,7 @@ BRANDS: Dict[str, BrandConfig] = {
         sitemap_use_proxy=True,
         product_use_proxy=True,
         sfcc_ajax_template=None,
+        seed_urls=None,
     ),
     "jilsander": BrandConfig(
         enabled=True,
@@ -55,24 +59,56 @@ BRANDS: Dict[str, BrandConfig] = {
             "https://www.jilsander.com/on/demandware.store/"
             "Sites-JilSanderAPAC-Site/en_AU/Product-Show?pid={pid}&format=ajax"
         ),
+        seed_urls=None,
     ),
-   "driesvannoten": BrandConfig(
-    enabled=True,
-    key="driesvannoten",
-    name="DRIES VAN NOTEN",
-    source="driesvannoten.com",
-    locale="global",
+    "driesvannoten": BrandConfig(
+        enabled=True,
+        key="driesvannoten",
+        name="DRIES VAN NOTEN",
+        source="driesvannoten.com",
+        locale="global",
+        sitemap_index="https://www.driesvannoten.com/sitemap.xml",
+        # only root product sitemap (not /fr/, /en-sn/, etc) — keeps discovery sane
+        sitemap_filter=r"^https://www\.driesvannoten\.com/sitemap_products_\d+\.xml(\?.*)?$",
+        # IMPORTANT: canonical products only (no /en-xx/ or /fr-fr/)
+        product_url_pattern=r"^https://www\.driesvannoten\.com/products/([^/?#]+)$",
+        parser="jsonld",
+        sitemap_use_proxy=False,
+        product_use_proxy=True,
+        sfcc_ajax_template=None,
+        seed_urls=None,
+    ),
+    "prada": BrandConfig(
+        enabled=True,
+        key="prada",
+        name="PRADA",
+        source="prada.com",
+        locale="au/en",
 
-    sitemap_index="https://www.driesvannoten.com/sitemap.xml",
-    # only root product sitemap (not /fr/, /en-sn/, etc) — keeps discovery sane
-    sitemap_filter=r"^https://www\.driesvannoten\.com/sitemap_products_\d+\.xml(\?.*)?$",
+        # NOTE: Prada AU sitemap is mostly pradasphere/store-locator (no products).
+        # We keep this filled for completeness, but discovery should use seed_urls.
+        sitemap_index="https://www.prada.com/au/en/sitemap.xml",
+        sitemap_filter=None,
 
-    # IMPORTANT: canonical products only (no /en-xx/ or /fr-fr/)
-    product_url_pattern=r"^https://www\.driesvannoten\.com/products/([^/?#]+)$",
+        # Product pages:
+        # https://www.prada.com/au/en/p/<slug>/<SKU>
+        # Example SKU: 1BG600_2HFQ_F0002_V_OOO
+        product_url_pattern=r"^https://www\.prada\.com/au/en/p/[^/]+/([A-Z0-9]+(?:_[A-Z0-9]+)+)$",
 
-    parser="jsonld",
-    sitemap_use_proxy=False,
-    product_use_proxy=True,
-    sfcc_ajax_template=None,
-),
+        parser="jsonld",
+
+        # You successfully fetched category + product HTML without proxy
+        sitemap_use_proxy=False,
+        product_use_proxy=False,
+
+        sfcc_ajax_template=None,
+
+        # Category seeds (start small; add more once stable)
+        seed_urls=[
+            "https://www.prada.com/au/en/womens/bags/c/10062AU",
+            # "https://www.prada.com/au/en/mens/bags/c/10143AU",
+            # "https://www.prada.com/au/en/womens/shoes/c/10070AU",
+            # "https://www.prada.com/au/en/mens/shoes/c/10149AU",
+        ],
+    ),
 }
