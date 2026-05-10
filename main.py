@@ -13,9 +13,8 @@ from scrapers import jsonld as jsonld_parser
 from scrapers import sfcc as sfcc_parser
 
 
-# -----------------------------
 # RUNTIME CONFIG
-# -----------------------------
+
 SCRAPE_MAX_PRODUCTS = 30
 DISCOVER_EACH_RUN = True
 
@@ -105,7 +104,7 @@ def scrape_brand(session, config: BrandConfig, proxy: Optional[ProxyConfig]) -> 
 
         jitter_sleep(PRODUCT_SLEEP_RANGE)
 
-    # 🔒 HARD SAFETY: only dicts reach BigQuery
+    # HARD SAFETY: only dicts reach BigQuery
     rows = [r for r in rows if isinstance(r, dict)]
 
     # 4) Insert raw rows
@@ -164,7 +163,7 @@ def main() -> None:
         if stats.get("error"):
             send_alert(
                 DISCORD_WEBHOOK_URL,
-                title=f"🚨 {cfg.name} Scrape FAILED",
+                title=f"Alert {cfg.name} Scrape FAILED",
                 message=str(stats["error"]),
                 is_error=True,
                 brand=cfg.name,
@@ -172,7 +171,7 @@ def main() -> None:
         elif stats["scraped"] == 0:
             send_alert(
                 DISCORD_WEBHOOK_URL,
-                title=f"⚠️ {cfg.name} Zero Products",
+                title=f"No {cfg.name} Zero Products",
                 message=f"Discovered {stats['discovered']} but scraped 0",
                 is_error=True,
                 brand=cfg.name,
@@ -180,7 +179,7 @@ def main() -> None:
         else:
             send_alert(
                 DISCORD_WEBHOOK_URL,
-                title=f"✅ {cfg.name} Complete",
+                title=f"Yes  {cfg.name} Complete",
                 message=(
                     f"Discovered: {stats['discovered']}\n"
                     f"Scraped: {stats['scraped']}\n"
