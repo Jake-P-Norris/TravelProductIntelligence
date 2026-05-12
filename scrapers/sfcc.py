@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from bs4 import BeautifulSoup
 
 from config.brands import BrandConfig
+from utils.classify import classify_product
 from utils.helpers import (
     classify_product_type,
     parse_price,
@@ -101,6 +102,14 @@ def normalise(
     category = ""
     colour = ""
 
+    cls = classify_product({
+        "product_name": name,
+        "product_url": url,
+        "category": category,
+        "description": "",
+        "source_text": html[:5000],
+    })
+
     return {
         "scrape_ts": utc_now_iso(),
         "brand": config.name,
@@ -117,8 +126,8 @@ def normalise(
         "source": config.source,
         "image_urls": image_urls,
         "image_count": len(image_urls),
-        "product_type": classify_product_type(str(name), str(category)),
-        "product_jsonld": "{}",
+        "product_type": str(cls["product_type"]),
+        "product_jsonld": __import__("json").dumps({"_mentzer_classification": cls}),
         "original_price": float(price),
         "on_sale": False,
         "discount_percent": 0.0,
