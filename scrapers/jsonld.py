@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 from bs4 import BeautifulSoup
 
 from config.brands import BrandConfig
+from utils.classify import classify_product
 from utils.helpers import (
     classify_product_type,
     parse_price,
@@ -99,6 +100,17 @@ def normalise(url: str, html: str, config: BrandConfig) -> Optional[Dict[str, An
         image_urls = [x for x in imgs if isinstance(x, str)]
     image_urls = list(dict.fromkeys([u.strip() for u in image_urls if u and u.strip()]))
 
+    cls = classify_product({
+        "product_name": name,
+        "product_url": url,
+        "category": category,
+        "description": str(product.get("description", "")),
+        "source_text": json.dumps(product, ensure_ascii=False)[:5000],
+    })
+
+    product_payload = dict(product)
+    product_payload["_mentzer_classification"] = cls
+
     return {
         "scrape_ts": utc_now_iso(),
         "brand": config.name,
@@ -115,8 +127,8 @@ def normalise(url: str, html: str, config: BrandConfig) -> Optional[Dict[str, An
         "source": config.source,
         "image_urls": image_urls,
         "image_count": len(image_urls),
-        "product_type": classify_product_type(str(name), str(category)),
-        "product_jsonld": json.dumps(product, ensure_ascii=False)[:100000],
+        "product_type": str(cls["product_type"]),
+        "product_jsonld": json.dumps(product_payload, ensure_ascii=False)[:100000],
         "original_price": float(price_val),
         "on_sale": False,
         "discount_percent": 0.0,
