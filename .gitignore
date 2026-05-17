@@ -18,3 +18,11 @@ venv/
 .DS_Store
 
 
+.secrets/
+*.json
+.env
+.secrets/
+*.json
+.env
+__pycache__/
+*.pyc
