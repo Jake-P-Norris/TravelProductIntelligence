@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mentzer Multi-Brand Fashion Scraper (JSON-LD + SFCC fallback)
+TravelProductIntelligence Multi-Brand Fashion Scraper (JSON-LD + SFCC fallback)
 ============================================================
 Fixes:
 - Jil Sander sitemaps can 403/SSL-fail via proxy/CF.
@@ -8,8 +8,8 @@ Fixes:
 - Product pages + SFCC ajax still use proxy.
 
 Writes to:
-- mentzer_raw.products_index
-- mentzer_raw.products_raw_v2
+- TravelProductIntelligence_raw.products_index
+- TravelProductIntelligence_raw.products_raw_v2
 
 NOTE: This version does NOT emit low_price/high_price (your table doesn't have them).
 """
@@ -162,7 +162,7 @@ def send_alert(title: str, message: str, is_error: bool = False, brand: str = "M
             "description": message[:3900],
             "color": color,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "footer": {"text": f"Mentzer Scraper | {brand}"}
+            "footer": {"text": f"TravelProductIntelligence Scraper | {brand}"}
         }]
     }
 
@@ -611,7 +611,7 @@ def bq_client() -> bigquery.Client:
 
 def insert_bigquery(rows: List[Dict[str, Any]]) -> None:
     client = bq_client()
-    table_id = f"{client.project}.mentzer_raw.products_raw_v2"
+    table_id = f"{client.project}.TravelProductIntelligence_raw.products_raw_v2"
     print(f"Inserting {len(rows)} rows into {table_id}", flush=True)
     errors = client.insert_rows_json(table_id, rows)
     if errors:
@@ -621,7 +621,7 @@ def insert_bigquery(rows: List[Dict[str, Any]]) -> None:
 
 def upsert_products_index(urls: List[str], config: BrandConfig) -> None:
     client = bq_client()
-    table_id = f"{client.project}.mentzer_raw.products_index"
+    table_id = f"{client.project}.TravelProductIntelligence_raw.products_index"
     pattern = re.compile(config.product_url_pattern)
     now_ts = datetime.now(timezone.utc).isoformat()
 
@@ -644,7 +644,7 @@ def upsert_products_index(urls: List[str], config: BrandConfig) -> None:
         print("No index rows to upsert.", flush=True)
         return
 
-    temp_table_id = f"{client.project}.mentzer_raw._products_index_stage"
+    temp_table_id = f"{client.project}.TravelProductIntelligence_raw._products_index_stage"
 
     job_config = bigquery.LoadJobConfig(
         write_disposition="WRITE_TRUNCATE",
@@ -683,7 +683,7 @@ def pick_urls_to_scrape(limit: int, config: BrandConfig) -> List[str]:
     client = bq_client()
     query = f"""
     SELECT product_url
-    FROM `{client.project}.mentzer_raw.products_index`
+    FROM `{client.project}.TravelProductIntelligence_raw.products_index`
     WHERE brand = @brand
       AND locale = @locale
       AND active_flag = TRUE
@@ -708,10 +708,10 @@ def mark_scraped(urls: List[str], config: BrandConfig) -> None:
         return
 
     client = bq_client()
-    table_id = f"{client.project}.mentzer_raw.products_index"
+    table_id = f"{client.project}.TravelProductIntelligence_raw.products_index"
     now_ts = datetime.now(timezone.utc).isoformat()
 
-    temp_table_id = f"{client.project}.mentzer_raw._scraped_urls_stage"
+    temp_table_id = f"{client.project}.TravelProductIntelligence_raw._scraped_urls_stage"
     stage_rows = [{"product_url": u, "last_scraped_ts": now_ts} for u in urls]
 
     job_config = bigquery.LoadJobConfig(
@@ -845,7 +845,7 @@ def scrape_brand(session: requests.Session, config: BrandConfig) -> Dict[str, An
 # =============================================================================
 def main() -> None:
     print("=" * 60, flush=True)
-    print("MENTZER MULTI-BRAND SCRAPER (SITEMAP NO-PROXY FIX)", flush=True)
+    print("TravelProductIntelligence MULTI-BRAND SCRAPER (SITEMAP NO-PROXY FIX)", flush=True)
     print("=" * 60, flush=True)
     print(f"Proxy: {PROXY_HOST}:{PROXY_PORT}", flush=True)
 

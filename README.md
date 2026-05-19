@@ -1,4 +1,4 @@
-# Mentzer
+# TravelProductIntelligence
 
 Retail product & pricing data pipeline — Python scrapers → BigQuery.
 
@@ -30,8 +30,8 @@ python main.py
 
 ## Docker
 ```bash
-docker build -t mentzer .
-docker run mentzer
+docker build -t TravelProductIntelligence .
+docker run TravelProductIntelligence
 ```
 
 ## Environment variables

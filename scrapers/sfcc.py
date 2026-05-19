@@ -127,7 +127,7 @@ def normalise(
         "image_urls": image_urls,
         "image_count": len(image_urls),
         "product_type": str(cls["product_type"]),
-        "product_jsonld": __import__("json").dumps({"_mentzer_classification": cls}),
+        "product_jsonld": __import__("json").dumps({"_TravelProductIntelligence_classification": cls}),
         "original_price": float(price),
         "on_sale": False,
         "discount_percent": 0.0,

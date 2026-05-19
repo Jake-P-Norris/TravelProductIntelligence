@@ -11,7 +11,7 @@ from utils.helpers import parse_product_code_from_url
 
 def upsert_products_index(urls: List[str], config: BrandConfig) -> None:
     client = bq_client()
-    table_id = f"{client.project}.mentzer_raw.products_index"
+    table_id = f"{client.project}.TravelProductIntelligence_raw.products_index"
     pattern = re.compile(config.product_url_pattern)
     now_ts = datetime.now(timezone.utc).isoformat()
 
@@ -33,7 +33,7 @@ def upsert_products_index(urls: List[str], config: BrandConfig) -> None:
     if not index_rows:
         return
 
-    temp_table_id = f"{client.project}.mentzer_raw._products_index_stage"
+    temp_table_id = f"{client.project}.TravelProductIntelligence_raw._products_index_stage"
 
     job_config = bigquery.LoadJobConfig(
         write_disposition="WRITE_TRUNCATE",
@@ -77,7 +77,7 @@ def pick_urls_to_scrape(limit: int, config: BrandConfig, cooldown_hours: int = 1
         -- pick a deterministic priority per URL
         MIN(IFNULL(last_scraped_ts, TIMESTAMP('1970-01-01'))) AS last_scraped_ts_min,
         MAX(last_seen_ts) AS last_seen_ts_max
-      FROM `{client.project}.mentzer_raw.products_index`
+      FROM `{client.project}.TravelProductIntelligence_raw.products_index`
       WHERE brand = @brand
         AND locale = @locale
         AND active_flag = TRUE
@@ -114,10 +114,10 @@ def mark_scraped(urls: List[str], config: BrandConfig) -> None:
         return
 
     client = bq_client()
-    table_id = f"{client.project}.mentzer_raw.products_index"
+    table_id = f"{client.project}.TravelProductIntelligence_raw.products_index"
     now_ts = datetime.now(timezone.utc).isoformat()
 
-    temp_table_id = f"{client.project}.mentzer_raw._scraped_urls_stage"
+    temp_table_id = f"{client.project}.TravelProductIntelligence_raw._scraped_urls_stage"
     stage_rows = [{"product_url": u, "last_scraped_ts": now_ts} for u in urls]
 
     job_config = bigquery.LoadJobConfig(

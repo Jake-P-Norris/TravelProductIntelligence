@@ -22,7 +22,7 @@ def send_alert(
             "description": message[:3900],
             "color": color,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "footer": {"text": f"Mentzer Scraper | {brand}"}
+            "footer": {"text": f"TravelProductIntelligence Scraper | {brand}"}
         }]
     }
 

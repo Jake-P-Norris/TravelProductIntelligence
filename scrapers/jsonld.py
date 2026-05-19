@@ -109,7 +109,7 @@ def normalise(url: str, html: str, config: BrandConfig) -> Optional[Dict[str, An
     })
 
     product_payload = dict(product)
-    product_payload["_mentzer_classification"] = cls
+    product_payload["_TravelProductIntelligence_classification"] = cls
 
     return {
         "scrape_ts": utc_now_iso(),
