@@ -1,4 +1,5 @@
 import argparse
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -16,21 +17,19 @@ from scrapers import sfcc as sfcc_parser
 # -----------------------------
 # RUNTIME CONFIG
 # -----------------------------
-SCRAPE_MAX_PRODUCTS = 30
+SCRAPE_MAX_PRODUCTS = 40
 DISCOVER_EACH_RUN = True
 
 PRODUCT_SLEEP_RANGE = (0.9, 2.6)
 
-# Proxy (move to env later)
 PROXY = ProxyConfig(
-    host="proxy.smartproxy.net",
-    port="3120",
-    user="smart-bvbqc708x5es",
-    password="sj9DjY4TXcTCx96N",
+    host=os.environ.get("SMARTPROXY_HOST", "proxy.smartproxy.net"),
+    port=os.environ.get("SMARTPROXY_PORT", "3120"),
+    user=os.environ.get("SMARTPROXY_USER", ""),
+    password=os.environ.get("SMARTPROXY_PASS", ""),
 )
 
-# Discord webhook (move to env later)
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1456154851020116157/8qegSY2sqchTIfwiS5vG617Rx_myJHqzG6jUtkVayGYYFf9Ar4essC7Tw6YGneKycrsd"
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
 
 def scrape_brand(session, config: BrandConfig, proxy: Optional[ProxyConfig]) -> Dict[str, Any]:

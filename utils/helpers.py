@@ -21,23 +21,28 @@ def parse_price(x: Any) -> Optional[float]:
     return None
 
 
-def classify_product_type(name: str, category: str) -> str:
-    name_lower = (name or "").lower()
+def classify_product_type(name: str, category: str = "") -> str:
+    t = (name or "").lower() + " " + (category or "").lower()
 
-    if any(x in name_lower for x in ["jacket", "coat", "blazer", "parka", "bomber", "trench"]):
-        return "outerwear"
-    if any(x in name_lower for x in ["sweater", "cardigan", "knit", "jumper", "pullover"]):
-        return "knitwear"
-    if any(x in name_lower for x in ["shirt", "blouse", "top", "tee", "t-shirt", "tank"]):
-        return "tops"
-    if any(x in name_lower for x in ["pant", "trouser", "jean", "chino", "short"]):
-        return "bottoms"
-    if any(x in name_lower for x in ["dress", "skirt"]):
-        return "dresses"
-    if any(x in name_lower for x in ["bag", "wallet", "clutch", "tote", "purse", "belt", "scarf"]):
-        return "accessories"
-    if any(x in name_lower for x in ["shoe", "boot", "sneaker", "sandal", "loafer"]):
-        return "footwear"
+    # Accessories first — multi-word phrases that overlap with "luggage" or "bag"
+    if any(x in t for x in ["packing cube", "luggage tag", "bag tag", "tsa lock", "combination lock",
+                              "passport holder", "toiletry", "travel pillow", "luggage scale",
+                              "adaptor", "adapter", "luggage strap", "luggage cover",
+                              "shoe bag", "laundry bag"]):
+        return "travel accessories"
+    if any(x in t for x in ["carry-on", "carry on", "carryon", "cabin bag", "cabin luggage"]):
+        return "carry-on"
+    if any(x in t for x in ["hardside", "hard side", "hardcase", "hard case", "polycarbonate", "aluminum", "aluminium"]):
+        return "hardcase luggage"
+    if any(x in t for x in ["softside", "soft side", "softcase", "soft case", "fabric luggage"]):
+        return "softcase luggage"
+    if any(x in t for x in ["luggage", "suitcase", "spinner", "trolley case"]):
+        return "hardcase luggage"
+    if any(x in t for x in ["backpack", "rucksack"]):
+        return "backpack"
+    if any(x in t for x in ["bag", "duffle", "duffel", "tote", "shoulder", "crossbody",
+                              "sling", "briefcase", "wallet", "pouch", "clutch", "holdall"]):
+        return "bags"
     return "other"
 
 

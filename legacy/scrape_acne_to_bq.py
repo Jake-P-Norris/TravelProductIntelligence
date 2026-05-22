@@ -15,6 +15,7 @@ NOTE: This version does NOT emit low_price/high_price (your table doesn't have t
 """
 
 import json
+import os
 import random
 import re
 import time
@@ -86,21 +87,21 @@ DISCOVER_EACH_RUN = True
 
 
 # =============================================================================
-# PROXY CONFIG (as provided)
+# PROXY CONFIG
 # =============================================================================
-PROXY_HOST = "proxy.smartproxy.net"
-PROXY_PORT = "3120"
-PROXY_USER = "smart-bvbqc708x5es"
-PROXY_PASS = "sj9DjY4TXcTCx96N"
+PROXY_HOST = os.environ.get("SMARTPROXY_HOST", "proxy.smartproxy.net")
+PROXY_PORT = os.environ.get("SMARTPROXY_PORT", "3120")
+PROXY_USER = os.environ.get("SMARTPROXY_USER", "")
+PROXY_PASS = os.environ.get("SMARTPROXY_PASS", "")
 
 PROXY_URL = f"http://{PROXY_USER}:{PROXY_PASS}@{PROXY_HOST}:{PROXY_PORT}"
 PROXIES = {"http": PROXY_URL, "https": PROXY_URL}
 
 
 # =============================================================================
-# WEBHOOK CONFIG (as provided)
+# WEBHOOK CONFIG
 # =============================================================================
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1456154851020116157/8qegSY2sqchTIfwiS5vG617Rx_myJHqzG6jUtkVayGYYFf9Ar4essC7Tw6YGneKycrsd"
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
 
 # =============================================================================
@@ -853,7 +854,7 @@ def main() -> None:
     print(f"Enabled brands: {enabled}", flush=True)
 
     if not enabled:
-        print("❌ No brands enabled! Edit BRAND_CONFIG to enable brands.", flush=True)
+        print("No brands enabled! Edit BRAND_CONFIG to enable brands.", flush=True)
         return
 
     session = make_session()
