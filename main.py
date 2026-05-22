@@ -16,7 +16,7 @@ from scrapers import sfcc as sfcc_parser
 # -----------------------------
 # RUNTIME CONFIG
 # -----------------------------
-SCRAPE_MAX_PRODUCTS = 30
+SCRAPE_MAX_PRODUCTS = 40
 DISCOVER_EACH_RUN = True
 
 PRODUCT_SLEEP_RANGE = (0.9, 2.6)

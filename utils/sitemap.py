@@ -13,6 +13,14 @@ EXCLUDE_HINTS = ("gift-card", "gift-cards", "/pages/", "/blogs/", "/cart", "/acc
 BAD_EXT_RE = re.compile(r"\.(jpg|jpeg|png|gif|webp|svg|avif|mp4|mov|pdf)(\?|$)", re.I)
 
 
+def _assert_xml_not_html(text: str, url: str = "") -> None:
+    if text.lstrip().startswith("<!"):
+        raise RuntimeError(
+            "Sitemap returned HTML/challenge page instead of XML — proxy may be blocked"
+            + (f" ({url})" if url else "")
+        )
+
+
 def parse_sitemap_xml(xml_text: str) -> List[str]:
     locs = re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", xml_text)
     if locs:
@@ -75,6 +83,7 @@ def find_product_urls(session, config: BrandConfig, proxy: Optional[ProxyConfig]
     sitemap_filter = re.compile(config.sitemap_filter) if config.sitemap_filter else None
 
     index_xml = get_text(session, config.sitemap_index, use_proxy=config.sitemap_use_proxy, proxy=proxy, fallback_no_proxy=True)
+    _assert_xml_not_html(index_xml, config.sitemap_index)
     child_sitemaps = parse_sitemap_xml(index_xml)
     if not child_sitemaps:
         return []
@@ -92,6 +101,7 @@ def find_product_urls(session, config: BrandConfig, proxy: Optional[ProxyConfig]
             continue
         try:
             sm_xml = get_text(session, sm, use_proxy=config.sitemap_use_proxy, proxy=proxy, fallback_no_proxy=True)
+            _assert_xml_not_html(sm_xml, sm)
             for u in parse_sitemap_xml(sm_xml):
                 if isinstance(u, str) and _ok_url(u) and product_pattern.match(u):
                     found_urls.append(u)
