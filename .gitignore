@@ -8,21 +8,13 @@ venv/
 *.swp
 *.swo
 
-# Environment / secrets
+# Environment and secrets — never commit these
 .env
+.secrets/
+*.json
 
 # Logs
 *.log
 
 # OS junk
 .DS_Store
-
-
-.secrets/
-*.json
-.env
-.secrets/
-*.json
-.env
-__pycache__/
-*.pyc

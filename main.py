@@ -1,5 +1,9 @@
 import argparse
 import os
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -22,14 +26,23 @@ DISCOVER_EACH_RUN = True
 
 PRODUCT_SLEEP_RANGE = (0.9, 2.6)
 
-PROXY = ProxyConfig(
-    host=os.environ.get("SMARTPROXY_HOST", "proxy.smartproxy.net"),
-    port=os.environ.get("SMARTPROXY_PORT", "3120"),
-    user=os.environ.get("SMARTPROXY_USER", ""),
-    password=os.environ.get("SMARTPROXY_PASS", ""),
+# Proxy — optional; only used when all four env vars are present
+_proxy_vars = (
+    os.environ.get("SMARTPROXY_HOST", ""),
+    os.environ.get("SMARTPROXY_PORT", ""),
+    os.environ.get("SMARTPROXY_USER", ""),
+    os.environ.get("SMARTPROXY_PASS", ""),
+)
+PROXY: Optional[ProxyConfig] = (
+    ProxyConfig(host=_proxy_vars[0], port=_proxy_vars[1], user=_proxy_vars[2], password=_proxy_vars[3])
+    if all(_proxy_vars)
+    else None
 )
 
+# Discord alerts — skipped silently when URL is not set
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
+if not DISCORD_WEBHOOK_URL:
+    print("Warning: DISCORD_WEBHOOK_URL not set — Discord alerts disabled")
 
 
 def scrape_brand(session, config: BrandConfig, proxy: Optional[ProxyConfig]) -> Dict[str, Any]:
@@ -104,7 +117,7 @@ def scrape_brand(session, config: BrandConfig, proxy: Optional[ProxyConfig]) -> 
 
         jitter_sleep(PRODUCT_SLEEP_RANGE)
 
-    # 🔒 HARD SAFETY: only dicts reach BigQuery
+    # Only dicts reach BigQuery
     rows = [r for r in rows if isinstance(r, dict)]
 
     # 4) Insert raw rows
@@ -131,7 +144,7 @@ def scrape_brand(session, config: BrandConfig, proxy: Optional[ProxyConfig]) -> 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--brand", type=str, default=None, help="Run one brand key, e.g. --brand jilsander")
+    p.add_argument("--brand", type=str, default=None, help="Run one brand key, e.g. --brand antler")
     p.add_argument("--all", action="store_true", help="Run all enabled brands")
     return p.parse_args()
 
