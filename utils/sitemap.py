@@ -13,8 +13,24 @@ EXCLUDE_HINTS = ("gift-card", "gift-cards", "/pages/", "/blogs/", "/cart", "/acc
 BAD_EXT_RE = re.compile(r"\.(jpg|jpeg|png|gif|webp|svg|avif|mp4|mov|pdf)(\?|$)", re.I)
 
 
+_CHALLENGE_SIGNS = (
+    "client challenge",
+    "javascript is disabled",
+    "/_fs-ch-",
+    "cf-browser-verification",
+    "just a moment",
+    "enable javascript",
+)
+
+
 def _assert_xml_not_html(text: str, url: str = "") -> None:
-    if text.lstrip().startswith("<!"):
+    stripped = text.lstrip()
+    sample = text[:2000].lower()
+    is_html = (
+        stripped.startswith("<!") or stripped.lower().startswith("<html")
+        or any(sign in sample for sign in _CHALLENGE_SIGNS)
+    )
+    if is_html:
         raise RuntimeError(
             "Sitemap returned HTML/challenge page instead of XML — proxy may be blocked"
             + (f" ({url})" if url else "")

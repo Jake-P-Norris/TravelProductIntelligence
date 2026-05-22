@@ -2,4 +2,4 @@ requests
 beautifulsoup4
 lxml
 google-cloud-bigquery
-
+python-dotenv

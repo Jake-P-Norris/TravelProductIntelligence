@@ -9,4 +9,4 @@ COPY . .
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "scrape_acne_to_bq.py"]
+CMD ["python", "main.py", "--all"]

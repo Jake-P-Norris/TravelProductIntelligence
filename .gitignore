@@ -8,13 +8,13 @@ venv/
 *.swp
 *.swo
 
-# Environment / secrets
+# Environment and secrets — never commit these
 .env
+.secrets/
+*.json
 
 # Logs
 *.log
 
 # OS junk
 .DS_Store
-
-
